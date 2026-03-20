@@ -94,6 +94,18 @@
 
   .subtitle { margin-top: 12px; font-size: 13px; letter-spacing: 3px; color: var(--muted); }
 
+  .date-display {
+    margin-top: 20px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    text-shadow: 0 0 10px rgba(0,245,255,0.3);
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .date-display .day { font-weight: 700; }
+  .date-display .week { color: var(--violet); }
+
   .global-progress {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -252,6 +264,7 @@
     <div class="header-tag">LIU — MS CCE · Online Mode · Spring 2026</div>
     <h1>Study Tracker</h1>
     <div class="subtitle">WEEKS 01 — 12 &nbsp;·&nbsp; 5 COURSES</div>
+    <div class="date-display" id="dateDisplay"></div>
   </header>
 
   <div class="global-progress">
@@ -274,6 +287,7 @@
 </div>
 
 <script>
+const SEMESTER_START = new Date(2026, 0, 5); // Jan 5, 2026 (Monday, Week 1, Day 1)
 const weeks = [
   { week: 1, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Lec 1 — Intro to Python' },
@@ -370,6 +384,8 @@ function render() {
   const grid = document.getElementById('weeksGrid');
   grid.innerHTML = '';
 
+  updateDateDisplay();
+
   let totalItems = 0, doneItems = 0;
 
   weeks.forEach((w, wi) => {
@@ -425,6 +441,25 @@ function render() {
       render();
     });
   });
+}
+
+function updateDateDisplay() {
+  const now = new Date();
+  const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const monthName = now.toLocaleDateString('en-US', { month: 'short' });
+  const date = now.getDate();
+
+  const daysDiff = Math.floor((now - SEMESTER_START) / (1000 * 60 * 60 * 24));
+  const currentWeek = Math.floor(daysDiff / 7) + 1;
+  const weekEndDate = new Date(SEMESTER_START);
+  weekEndDate.setDate(weekEndDate.getDate() + (currentWeek * 7 - 1));
+  const endDay = weekEndDate.getDate();
+  const endMonth = weekEndDate.toLocaleDateString('en-US', { month: 'short' });
+
+  const dateEl = document.getElementById('dateDisplay');
+  dateEl.innerHTML = `<span class="day">${dayName}, ${monthName} ${date}</span> · <span class="week">Week ${currentWeek}</span> <span style="color: var(--muted);">(ends ${endMonth} ${endDay})</span>`;
+  
+  setTimeout(updateDateDisplay, 1000);
 }
 
 render();
