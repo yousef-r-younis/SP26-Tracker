@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS CCE — Study Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --panel: #0b1120;
+    --border: #1a2540;
+    --cyan: #00f5ff;
+    --pink: #ff2d78;
+    --violet: #bf5fff;
+    --green: #00ff9d;
+    --yellow: #ffe600;
+    --text: #c8d8f0;
+    --muted: #4a6080;
+    --c566l: #00f5ff;
+    --c566:  #bf5fff;
+    --c557:  #ff2d78;
+    --c675:  #00ff9d;
+    --e587:  #ffe600;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,245,255,0.015) 2px, rgba(0,245,255,0.015) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  header { text-align: center; margin-bottom: 56px; }
+
+  .header-tag {
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(28px, 5vw, 54px);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--cyan) 0%, var(--violet) 50%, var(--pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(0,245,255,0.4));
+    animation: titlePulse 4s ease-in-out infinite;
+  }
+
+  @keyframes titlePulse {
+    0%,100% { filter: drop-shadow(0 0 20px rgba(0,245,255,0.4)); }
+    50%      { filter: drop-shadow(0 0 35px rgba(191,95,255,0.6)); }
+  }
+
+  .subtitle { margin-top: 12px; font-size: 13px; letter-spacing: 3px; color: var(--muted); }
+
+  .global-progress {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 28px;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .gp-label { font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 3px; color: var(--cyan); white-space: nowrap; }
+
+  .gp-bar-wrap { flex: 1; min-width: 160px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+
+  .gp-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--violet));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px var(--cyan);
+  }
+
+  .gp-count { font-family: 'Orbitron', sans-serif; font-size: 13px; color: var(--violet); white-space: nowrap; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; justify-content: center; }
+
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .weeks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; }
+
+  .week-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .week-card::before { content: ''; display: block; height: 2px; background: linear-gradient(90deg, var(--cyan), transparent); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .week-card:hover { border-color: rgba(0,245,255,0.3); }
+
+  .week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(0,245,255,0.04);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .week-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
+
+  .week-mini-bar { display: flex; align-items: center; gap: 10px; }
+
+  .mini-progress { width: 80px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+
+  .mini-progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--green));
+    transition: width 0.4s ease;
+    box-shadow: 0 0 6px var(--cyan);
+  }
+
+  .mini-count { font-size: 10px; color: var(--muted); letter-spacing: 1px; min-width: 32px; text-align: right; }
+
+  .lectures { padding: 10px 0; }
+
+  .lecture-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 20px;
+    border-bottom: 1px solid rgba(26,37,64,0.5);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .lecture-row:last-child { border-bottom: none; }
+  .lecture-row:hover { background: rgba(0,245,255,0.03); }
+  .lecture-row.done { opacity: 0.45; }
+  .lecture-row.done .lecture-name { text-decoration: line-through; text-decoration-color: rgba(0,245,255,0.3); }
+
+  .cb-wrap { position: relative; flex-shrink: 0; width: 18px; height: 18px; }
+
+  .cb-wrap input[type="checkbox"] {
+    position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; margin: 0;
+  }
+
+  .cb-box {
+    position: absolute; inset: 0;
+    border: 1.5px solid var(--muted);
+    border-radius: 3px;
+    background: transparent;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .cb-wrap input:checked ~ .cb-box {
+    border-color: var(--green);
+    background: rgba(0,255,157,0.12);
+    box-shadow: 0 0 8px rgba(0,255,157,0.5);
+  }
+
+  .cb-box::after {
+    content: '';
+    width: 10px; height: 6px;
+    border-left: 2px solid var(--green);
+    border-bottom: 2px solid var(--green);
+    transform: rotate(-45deg) translateY(-1px);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .cb-wrap input:checked ~ .cb-box::after { opacity: 1; }
+
+  .course-badge {
+    font-size: 9px; letter-spacing: 1.5px; font-weight: 700;
+    padding: 3px 7px; border-radius: 3px; border: 1px solid;
+    flex-shrink: 0; font-family: 'Orbitron', sans-serif;
+    min-width: 68px; text-align: center;
+  }
+
+  .lecture-name { font-size: 12px; letter-spacing: 0.5px; color: var(--text); line-height: 1.4; flex: 1; }
+
+  .badge-566l { color: var(--c566l); border-color: rgba(0,245,255,0.35);  background: rgba(0,245,255,0.06); }
+  .badge-566  { color: var(--c566);  border-color: rgba(191,95,255,0.35); background: rgba(191,95,255,0.06); }
+  .badge-557  { color: var(--c557);  border-color: rgba(255,45,120,0.35); background: rgba(255,45,120,0.06); }
+  .badge-675  { color: var(--c675);  border-color: rgba(0,255,157,0.35);  background: rgba(0,255,157,0.06); }
+  .badge-587  { color: var(--e587);  border-color: rgba(255,230,0,0.35);  background: rgba(255,230,0,0.06); }
+
+  footer { text-align: center; margin-top: 64px; font-size: 11px; letter-spacing: 3px; color: var(--muted); }
+  footer span { color: var(--pink); }
+
+  @media (max-width: 500px) {
+    .week-title { font-size: 11px; }
+    .lecture-name { font-size: 11px; }
+    .course-badge { min-width: 56px; font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-tag">LIU — MS CCE · Online Mode · Spring 2026</div>
+    <h1>Study Tracker</h1>
+    <div class="subtitle">WEEKS 01 — 12 &nbsp;·&nbsp; 5 COURSES</div>
+  </header>
+
+  <div class="global-progress">
+    <div class="gp-label">OVERALL&nbsp;PROGRESS</div>
+    <div class="gp-bar-wrap"><div class="gp-bar" id="globalBar"></div></div>
+    <div class="gp-count" id="globalCount">0 / 0</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c566l);box-shadow:0 0 6px var(--c566l)"></div>CENG566L · ML Lab</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c566);box-shadow:0 0 6px var(--c566)"></div>CENG566 · ML</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c557);box-shadow:0 0 6px var(--c557)"></div>CENG557 · Adv. Networks</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c675);box-shadow:0 0 6px var(--c675)"></div>CENG675 · Multimedia</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--e587);box-shadow:0 0 6px var(--e587)"></div>EENG587 · Wireless</div>
+  </div>
+
+  <div class="weeks-grid" id="weeksGrid"></div>
+
+  <footer>BUILT FOR LIU MS CCE · <span>STAY CONSISTENT</span> · 2026</footer>
+</div>
+
+<script>
+const weeks = [
+  { week: 1, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Lec 1 — Intro to Python' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 1 — Intro to ML' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 1 — Introduction' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 1 — Introduction to Multimedia' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 1 — Overview of Wireless Communications' },
+  ]},
+  { week: 2, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Lec 2 — Python Libraries & Functions' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 2 — Intro to Neural Networks' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 2.1 — Wireless Access Networks (WiFi)' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 2 — Digital Data Acquisition' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 2 — Path Loss and Shadowing' },
+  ]},
+  { week: 3, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Lec 3 — NumPy' },
+    { course: '566',  label: 'CENG566',  name: "Lec 3 — Rosenblatt's Perceptron" },
+    { course: '557',  label: 'CENG557',  name: 'Lec 2.2 — Wireless Access Networks (Mobile)' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 3 — Media Representations and Formats' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 2 — Path Loss and Shadowing (cont.)' },
+  ]},
+  { week: 4, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Lec 4 — Pandas' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 3 — Wired Access Networks' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 4 — Color Theory' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 3 — Path Loss, Shadowing, Noise, Interference & Link Budget' },
+  ]},
+  { week: 5, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Lec 5 — Data Pre-processing' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 4 — LMS + Multilayer Perceptron' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 4.1 — SONET / SDH' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 4 — Statistical Multipath Channel Models (Narrowband)' },
+  ]},
+  { week: 6, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Experiment 1' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 5 — Multilayer Perceptron' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 4.2 — SONET / SDH' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 5 — Overview of Compression' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 5 — Statistical Multipath Channel Models (Wideband)' },
+  ]},
+  { week: 7, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Experiment 2' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 6 — Kernel Methods + RBF' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 5.1 — QOS' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 6 — Image Compression' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 6.1 — Capacity of Wireless Channels' },
+  ]},
+  { week: 8, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Experiment 3' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 7 — SVM' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 5.2 — QOS' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 7 — Video Compression' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 6.2 — Capacity of Wireless Channels' },
+  ]},
+  { week: 9, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Experiment 4' },
+    { course: '566',  label: 'CENG566',  name: 'Lec 8 — PCA' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 6.1 — ATM' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 8.1 — Audio Compression' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 7.1 — Diversity' },
+  ]},
+  { week: 10, lectures: [
+    { course: '566l', label: 'CENG566L', name: 'Experiment 5' },
+    { course: '557',  label: 'CENG557',  name: 'Lec 6.2 — ATM' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 8.2 — Audio Compression' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 7.2 — Diversity' },
+  ]},
+  { week: 11, lectures: [
+    { course: '557',  label: 'CENG557',  name: 'Lec 7.1 — MPLS' },
+    { course: '675',  label: 'CENG675',  name: 'Lec 9 — Multimedia Topics' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 8 — Multiple Antennas & Space Time Communications' },
+  ]},
+  { week: 12, lectures: [
+    { course: '557',  label: 'CENG557',  name: 'Lec 7.2 — MPLS' },
+    { course: '587',  label: 'EENG587',  name: 'Lec 9 — Multicarrier Modulation' },
+  ]},
+];
+
+const STORAGE_KEY = 'mscce_tracker_v2';
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+
+function saveState(state) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+}
+
+function itemId(week, idx) { return `w${week}_i${idx}`; }
+
+function render() {
+  const state = loadState();
+  const grid = document.getElementById('weeksGrid');
+  grid.innerHTML = '';
+
+  let totalItems = 0, doneItems = 0;
+
+  weeks.forEach((w, wi) => {
+    const card = document.createElement('div');
+    card.className = 'week-card';
+    card.style.animationDelay = (wi * 0.04) + 's';
+
+    const wTotal = w.lectures.length;
+    let wDone = 0;
+    w.lectures.forEach((_, i) => { if (state[itemId(w.week, i)]) wDone++; });
+    totalItems += wTotal;
+    doneItems += wDone;
+
+    card.innerHTML = `
+      <div class="week-header">
+        <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
+        <div class="week-mini-bar">
+          <div class="mini-progress">
+            <div class="mini-progress-fill" style="width:${wTotal ? (wDone/wTotal*100) : 0}%"></div>
+          </div>
+          <div class="mini-count">${wDone}/${wTotal}</div>
+        </div>
+      </div>
+      <div class="lectures">
+        ${w.lectures.map((lec, i) => {
+          const id = itemId(w.week, i);
+          const done = !!state[id];
+          return `
+            <label class="lecture-row${done ? ' done' : ''}" for="${id}">
+              <div class="cb-wrap">
+                <input type="checkbox" id="${id}" data-week="${w.week}" data-idx="${i}" ${done ? 'checked' : ''}>
+                <div class="cb-box"></div>
+              </div>
+              <div class="course-badge badge-${lec.course}">${lec.label}</div>
+              <div class="lecture-name">${lec.name}</div>
+            </label>
+          `;
+        }).join('')}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const pct = totalItems ? (doneItems / totalItems * 100) : 0;
+  document.getElementById('globalBar').style.width = pct + '%';
+  document.getElementById('globalCount').textContent = `${doneItems} / ${totalItems}`;
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const s = loadState();
+      s[itemId(this.dataset.week, this.dataset.idx)] = this.checked;
+      saveState(s);
+      render();
+    });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
