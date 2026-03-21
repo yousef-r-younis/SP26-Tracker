@@ -457,7 +457,7 @@ function updateDateDisplay() {
   const endMonth = weekEndDate.toLocaleDateString('en-US', { month: 'short' });
 
   const dateEl = document.getElementById('dateDisplay');
-  dateEl.innerHTML = `<span class="day">${dayName}, ${monthName} ${date}</span> · <span class="week">Week ${currentWeek}</span> <span style="color: var(--muted);">(ends ${endMonth} ${endDay})</span>`;
+  dateEl.innerHTML = `<span class="day">${dayName}, ${monthName} ${date}</span> · <span class="week">Week ${currentWeek}</span> <span style="color: var(--muted);"></span>`;
   
   setTimeout(updateDateDisplay, 1000);
 }
