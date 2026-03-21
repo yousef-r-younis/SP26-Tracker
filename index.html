@@ -24,6 +24,24 @@
     --e587:  #ffe600;
   }
 
+  body[data-theme="light"] {
+    --bg: #f5f8ff;
+    --panel: #ffffff;
+    --border: #d4dff2;
+    --cyan: #007e99;
+    --pink: #d5225f;
+    --violet: #6f48e5;
+    --green: #00a870;
+    --yellow: #c18b00;
+    --text: #10213d;
+    --muted: #5a6e8f;
+    --c566l: #007e99;
+    --c566:  #6f48e5;
+    --c557:  #d5225f;
+    --c675:  #00a870;
+    --e587:  #c18b00;
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -43,6 +61,10 @@
     z-index: 9999;
   }
 
+  body[data-theme="light"]::before {
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,126,153,0.05) 2px, rgba(0,126,153,0.05) 4px);
+  }
+
   body::after {
     content: '';
     position: fixed;
@@ -55,6 +77,12 @@
     z-index: 0;
   }
 
+  body[data-theme="light"]::after {
+    background-image:
+      linear-gradient(rgba(0,126,153,0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,126,153,0.1) 1px, transparent 1px);
+  }
+
   .container {
     position: relative;
     z-index: 1;
@@ -64,6 +92,56 @@
   }
 
   header { text-align: center; margin-bottom: 56px; }
+
+  .header-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+  }
+
+  .theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s, color 0.2s;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 14px rgba(0,245,255,0.25);
+    transform: translateY(-1px);
+  }
+
+  body[data-theme="light"] .theme-toggle:hover {
+    box-shadow: 0 0 14px rgba(0,126,153,0.25);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+
+  .theme-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    font-size: 11px;
+    line-height: 1;
+  }
 
   .header-tag {
     font-size: 11px;
@@ -158,6 +236,8 @@
 
   .week-card:hover { border-color: rgba(0,245,255,0.3); }
 
+  body[data-theme="light"] .week-card:hover { border-color: rgba(0,126,153,0.35); }
+
   .week-header {
     display: flex;
     align-items: center;
@@ -166,6 +246,8 @@
     background: rgba(0,245,255,0.04);
     border-bottom: 1px solid var(--border);
   }
+
+  body[data-theme="light"] .week-header { background: rgba(0,126,153,0.08); }
 
   .week-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
 
@@ -196,6 +278,7 @@
 
   .lecture-row:last-child { border-bottom: none; }
   .lecture-row:hover { background: rgba(0,245,255,0.03); }
+  body[data-theme="light"] .lecture-row:hover { background: rgba(0,126,153,0.08); }
   .lecture-row.done { opacity: 0.45; }
   .lecture-row.done .lecture-name { text-decoration: line-through; text-decoration-color: rgba(0,245,255,0.3); }
 
@@ -261,6 +344,12 @@
 
 <div class="container">
   <header>
+    <div class="header-top">
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light mode">
+        <span class="theme-icon" id="themeIcon">☾</span>
+        <span id="themeText">Dark</span>
+      </button>
+    </div>
     <div class="header-tag">LIU — MS CCE · Online Mode · Spring 2026</div>
     <h1>Study Tracker</h1>
     <div class="subtitle">WEEKS 01 — 12 &nbsp;·&nbsp; 5 COURSES</div>
@@ -368,6 +457,45 @@ const weeks = [
 ];
 
 const STORAGE_KEY = 'mscce_tracker_v2';
+const THEME_KEY = 'mscce_theme';
+
+function getPreferredTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+  return 'dark';
+}
+
+function updateThemeButton(theme) {
+  const btn = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  const text = document.getElementById('themeText');
+  if (!btn || !icon || !text) return;
+
+  const isDark = theme === 'dark';
+  icon.textContent = isDark ? '☾' : '☀';
+  text.textContent = isDark ? 'Dark' : 'Light';
+  btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+}
+
+function applyTheme(theme) {
+  document.body.setAttribute('data-theme', theme);
+  updateThemeButton(theme);
+}
+
+function setupThemeToggle() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+
+  const initialTheme = getPreferredTheme();
+  applyTheme(initialTheme);
+
+  btn.addEventListener('click', () => {
+    const current = document.body.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+  });
+}
 
 function loadState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
@@ -462,6 +590,7 @@ function updateDateDisplay() {
   setTimeout(updateDateDisplay, 1000);
 }
 
+setupThemeToggle();
 render();
 </script>
 </body>
