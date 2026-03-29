@@ -229,12 +229,15 @@
 
   .week-card::before { content: ''; display: block; height: 2px; background: linear-gradient(90deg, var(--cyan), transparent); }
 
+  .week-card.empty-week::before { background: linear-gradient(90deg, var(--muted), transparent); }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
   .week-card:hover { border-color: rgba(0,245,255,0.3); }
+  .week-card.empty-week:hover { border-color: rgba(74,96,128,0.4); }
 
   body[data-theme="light"] .week-card:hover { border-color: rgba(0,126,153,0.35); }
 
@@ -247,9 +250,14 @@
     border-bottom: 1px solid var(--border);
   }
 
+  .week-card.empty-week .week-header {
+    background: rgba(74,96,128,0.06);
+  }
+
   body[data-theme="light"] .week-header { background: rgba(0,126,153,0.08); }
 
   .week-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
+  .week-card.empty-week .week-title { color: var(--muted); text-shadow: none; }
 
   .week-mini-bar { display: flex; align-items: center; gap: 10px; }
 
@@ -281,6 +289,24 @@
   body[data-theme="light"] .lecture-row:hover { background: rgba(0,126,153,0.08); }
   .lecture-row.done { opacity: 0.45; }
   .lecture-row.done .lecture-name { text-decoration: line-through; text-decoration-color: rgba(0,245,255,0.3); }
+
+  .empty-notice {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 20px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .empty-notice-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
 
   .cb-wrap { position: relative; flex-shrink: 0; width: 18px; height: 18px; }
 
@@ -352,7 +378,7 @@
     </div>
     <div class="header-tag">LIU . MCCE · Spring 2026</div>
     <h1>Study Tracker</h1>
-    <div class="subtitle">WEEKS 01 — 12 &nbsp;·&nbsp; 5 COURSES</div>
+    <div class="subtitle">WEEKS 01 — 13 &nbsp;·&nbsp; 5 COURSES</div>
     <div class="date-display" id="dateDisplay"></div>
   </header>
 
@@ -376,7 +402,9 @@
 </div>
 
 <script>
-const SEMESTER_START = new Date(2026, 1, 23); // Feb 23, 2026 (Monday, Week 1, Day 1)
+// Semester start: Feb 16, 2026 (Monday, Week 1)
+const SEMESTER_START = new Date(2026, 1, 16);
+
 const weeks = [
   { week: 1, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Lec 1 — Intro to Python' },
@@ -392,65 +420,66 @@ const weeks = [
     { course: '675',  label: 'CENG675',  name: 'Lec 2 — Digital Data Acquisition' },
     { course: '587',  label: 'EENG587',  name: 'Lec 2 — Path Loss and Shadowing' },
   ]},
-  { week: 3, lectures: [
+  { week: 3, empty: true, emptyReason: 'No lectures this week due to war.' },
+  { week: 4, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Lec 3 — NumPy' },
     { course: '566',  label: 'CENG566',  name: "Lec 3 — Rosenblatt's Perceptron" },
     { course: '557',  label: 'CENG557',  name: 'Lec 2.2 — Wireless Access Networks (Mobile)' },
     { course: '675',  label: 'CENG675',  name: 'Lec 3 — Media Representations and Formats' },
     { course: '587',  label: 'EENG587',  name: 'Lec 2 — Path Loss and Shadowing (cont.)' },
   ]},
-  { week: 4, lectures: [
+  { week: 5, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Lec 4 — Pandas' },
     { course: '557',  label: 'CENG557',  name: 'Lec 3 — Wired Access Networks' },
     { course: '675',  label: 'CENG675',  name: 'Lec 4 — Color Theory' },
     { course: '587',  label: 'EENG587',  name: 'Lec 3 — Path Loss, Shadowing, Noise, Interference & Link Budget' },
   ]},
-  { week: 5, lectures: [
+  { week: 6, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Lec 5 — Data Pre-processing' },
     { course: '566',  label: 'CENG566',  name: 'Lec 4 — LMS + Multilayer Perceptron' },
     { course: '557',  label: 'CENG557',  name: 'Lec 4.1 — SONET / SDH' },
     { course: '587',  label: 'EENG587',  name: 'Lec 4 — Statistical Multipath Channel Models (Narrowband)' },
   ]},
-  { week: 6, lectures: [
+  { week: 7, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 1' },
     { course: '566',  label: 'CENG566',  name: 'Lec 5 — Multilayer Perceptron' },
     { course: '557',  label: 'CENG557',  name: 'Lec 4.2 — SONET / SDH' },
     { course: '675',  label: 'CENG675',  name: 'Lec 5 — Overview of Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 5 — Statistical Multipath Channel Models (Wideband)' },
   ]},
-  { week: 7, lectures: [
+  { week: 8, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 2' },
     { course: '566',  label: 'CENG566',  name: 'Lec 6 — Kernel Methods + RBF' },
     { course: '557',  label: 'CENG557',  name: 'Lec 5.1 — QOS' },
     { course: '675',  label: 'CENG675',  name: 'Lec 6 — Image Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 6.1 — Capacity of Wireless Channels' },
   ]},
-  { week: 8, lectures: [
+  { week: 9, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 3' },
     { course: '566',  label: 'CENG566',  name: 'Lec 7 — SVM' },
     { course: '557',  label: 'CENG557',  name: 'Lec 5.2 — QOS' },
     { course: '675',  label: 'CENG675',  name: 'Lec 7 — Video Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 6.2 — Capacity of Wireless Channels' },
   ]},
-  { week: 9, lectures: [
+  { week: 10, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 4' },
     { course: '566',  label: 'CENG566',  name: 'Lec 8 — PCA' },
     { course: '557',  label: 'CENG557',  name: 'Lec 6.1 — ATM' },
     { course: '675',  label: 'CENG675',  name: 'Lec 8.1 — Audio Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 7.1 — Diversity' },
   ]},
-  { week: 10, lectures: [
+  { week: 11, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 5' },
     { course: '557',  label: 'CENG557',  name: 'Lec 6.2 — ATM' },
     { course: '675',  label: 'CENG675',  name: 'Lec 8.2 — Audio Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 7.2 — Diversity' },
   ]},
-  { week: 11, lectures: [
+  { week: 12, lectures: [
     { course: '557',  label: 'CENG557',  name: 'Lec 7.1 — MPLS' },
     { course: '675',  label: 'CENG675',  name: 'Lec 9 — Multimedia Topics' },
     { course: '587',  label: 'EENG587',  name: 'Lec 8 — Multiple Antennas & Space Time Communications' },
   ]},
-  { week: 12, lectures: [
+  { week: 13, lectures: [
     { course: '557',  label: 'CENG557',  name: 'Lec 7.2 — MPLS' },
     { course: '587',  label: 'EENG587',  name: 'Lec 9 — Multicarrier Modulation' },
   ]},
@@ -460,8 +489,8 @@ const STORAGE_KEY = 'mscce_tracker_v2';
 const THEME_KEY = 'mscce_theme';
 
 function getPreferredTheme() {
-  const savedTheme = localStorage.getItem(THEME_KEY);
-  if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === 'light' || saved === 'dark') return saved;
   return 'dark';
 }
 
@@ -470,7 +499,6 @@ function updateThemeButton(theme) {
   const icon = document.getElementById('themeIcon');
   const text = document.getElementById('themeText');
   if (!btn || !icon || !text) return;
-
   const isDark = theme === 'dark';
   icon.textContent = isDark ? '☾' : '☀';
   text.textContent = isDark ? 'Dark' : 'Light';
@@ -485,10 +513,7 @@ function applyTheme(theme) {
 function setupThemeToggle() {
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
-
-  const initialTheme = getPreferredTheme();
-  applyTheme(initialTheme);
-
+  applyTheme(getPreferredTheme());
   btn.addEventListener('click', () => {
     const current = document.body.getAttribute('data-theme') || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
@@ -518,8 +543,25 @@ function render() {
 
   weeks.forEach((w, wi) => {
     const card = document.createElement('div');
-    card.className = 'week-card';
+    card.className = 'week-card' + (w.empty ? ' empty-week' : '');
     card.style.animationDelay = (wi * 0.04) + 's';
+
+    if (w.empty) {
+      card.innerHTML = `
+        <div class="week-header">
+          <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
+          <div class="mini-count" style="color:var(--muted)">—</div>
+        </div>
+        <div class="lectures">
+          <div class="empty-notice">
+            <span class="empty-notice-icon">🕊</span>
+            <span>${w.emptyReason}</span>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+      return;
+    }
 
     const wTotal = w.lectures.length;
     let wDone = 0;
@@ -578,16 +620,12 @@ function updateDateDisplay() {
   const date = now.getDate();
 
   const daysDiff = Math.floor((now - SEMESTER_START) / (1000 * 60 * 60 * 24));
-  const currentWeek = Math.floor(daysDiff / 7) + 1;
-  const weekEndDate = new Date(SEMESTER_START);
-  weekEndDate.setDate(weekEndDate.getDate() + (currentWeek * 7 - 1));
-  const endDay = weekEndDate.getDate();
-  const endMonth = weekEndDate.toLocaleDateString('en-US', { month: 'short' });
+  const currentWeek = Math.max(1, Math.floor(daysDiff / 7) + 1);
 
   const dateEl = document.getElementById('dateDisplay');
-  dateEl.innerHTML = `<span class="day">${dayName}, ${monthName} ${date}</span> · <span class="week">Week ${currentWeek}</span> <span style="color: var(--muted);"></span>`;
-  
-  setTimeout(updateDateDisplay, 1000);
+  dateEl.innerHTML = `<span class="day">${dayName}, ${monthName} ${date}</span> · <span class="week">Week ${currentWeek}</span>`;
+
+  setTimeout(updateDateDisplay, 60000);
 }
 
 setupThemeToggle();
