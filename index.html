@@ -256,8 +256,10 @@
 
   body[data-theme="light"] .week-header { background: rgba(0,126,153,0.08); }
 
+  .week-title-wrap { display: flex; flex-direction: column; gap: 3px; }
   .week-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
   .week-card.empty-week .week-title { color: var(--muted); text-shadow: none; }
+  .week-dates { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
 
   .week-mini-bar { display: flex; align-items: center; gap: 10px; }
 
@@ -289,6 +291,80 @@
   body[data-theme="light"] .lecture-row:hover { background: rgba(0,126,153,0.08); }
   .lecture-row.done { opacity: 0.45; }
   .lecture-row.done .lecture-name { text-decoration: line-through; text-decoration-color: rgba(0,245,255,0.3); }
+
+  .assessment-banner {
+    margin: 0;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(255,230,0,0.07), rgba(255,45,120,0.05));
+    border-bottom: 1px solid rgba(255,230,0,0.2);
+    border-top: 1px solid rgba(255,230,0,0.15);
+  }
+
+  .assessment-banner-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--yellow);
+    text-shadow: 0 0 10px rgba(255,230,0,0.4);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .assessment-banner-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 8px var(--yellow);
+    animation: blinkDot 1.2s ease-in-out infinite;
+  }
+
+  @keyframes blinkDot {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.2; }
+  }
+
+  .assessment-banner-date {
+    font-size: 11px;
+    color: var(--pink);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .assessment-courses {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .assessment-course-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .assessment-course-row .ac-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid;
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: center;
+  }
+
+  .assessment-course-row .ac-lects {
+    color: var(--text);
+    opacity: 0.75;
+  }
 
   .empty-notice {
     display: flex;
@@ -532,6 +608,15 @@ function saveState(state) {
 
 function itemId(week, idx) { return `w${week}_i${idx}`; }
 
+function getWeekDates(weekNum) {
+  const start = new Date(SEMESTER_START);
+  start.setDate(start.getDate() + (weekNum - 1) * 7);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const fmt = d => `${d.getDate()}/${d.getMonth() + 1}`;
+  return `${fmt(start)} → ${fmt(end)}`;
+}
+
 function render() {
   const state = loadState();
   const grid = document.getElementById('weeksGrid');
@@ -549,7 +634,10 @@ function render() {
     if (w.empty) {
       card.innerHTML = `
         <div class="week-header">
-          <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
+          <div class="week-title-wrap">
+            <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
+            <div class="week-dates">${getWeekDates(w.week)}</div>
+          </div>
           <div class="mini-count" style="color:var(--muted)">—</div>
         </div>
         <div class="lectures">
@@ -571,7 +659,10 @@ function render() {
 
     card.innerHTML = `
       <div class="week-header">
-        <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
+        <div class="week-title-wrap">
+          <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
+          <div class="week-dates">${getWeekDates(w.week)}</div>
+        </div>
         <div class="week-mini-bar">
           <div class="mini-progress">
             <div class="mini-progress-fill" style="width:${wTotal ? (wDone/wTotal*100) : 0}%"></div>
@@ -579,6 +670,33 @@ function render() {
           <div class="mini-count">${wDone}/${wTotal}</div>
         </div>
       </div>
+      ${w.week === 8 ? `
+      <div class="assessment-banner">
+        <div class="assessment-banner-title">ONLINE ASSESSMENT</div>
+        <div class="assessment-banner-date">07 APR → 09 APR &nbsp;·&nbsp; MOODLE</div>
+        <div class="assessment-courses">
+          <div class="assessment-course-row">
+            <span class="ac-badge badge-566l">CENG566L</span>
+            <span class="ac-lects">Lec 1 · 2 · 3 · 4 · 5</span>
+          </div>
+          <div class="assessment-course-row">
+            <span class="ac-badge badge-566">CENG566</span>
+            <span class="ac-lects">Lec 1 · 2 · 3 · 4 (till slide 12)</span>
+          </div>
+          <div class="assessment-course-row">
+            <span class="ac-badge badge-557">CENG557</span>
+            <span class="ac-lects">Lec 1 · 2 · 3 · 4.1</span>
+          </div>
+          <div class="assessment-course-row">
+            <span class="ac-badge badge-675">CENG675</span>
+            <span class="ac-lects">Lec 1 · 2 · 3 · 4</span>
+          </div>
+          <div class="assessment-course-row">
+            <span class="ac-badge badge-587">EENG587</span>
+            <span class="ac-lects">Lec 1 · 2 · 3 · 4</span>
+          </div>
+        </div>
+      </div>` : ''}
       <div class="lectures">
         ${w.lectures.map((lec, i) => {
           const id = itemId(w.week, i);
