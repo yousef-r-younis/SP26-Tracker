@@ -507,7 +507,7 @@
     </div>
     <div class="header-tag">LIU . MCCE · Spring 2026</div>
     <h1>Study Tracker</h1>
-    <div class="subtitle">WEEKS 01 — 14 &nbsp;·&nbsp; 5 COURSES</div>
+    <div class="subtitle">WEEKS 01 — 16 &nbsp;·&nbsp; 5 COURSES</div>
     <div class="date-display" id="dateDisplay"></div>
   </header>
 
@@ -584,7 +584,7 @@ const weeks = [
     { course: '675',  label: 'CENG675',  name: 'Lec 2 — Digital Data Acquisition' },
     { course: '587',  label: 'EENG587',  name: 'Lec 2 — Path Loss and Shadowing' },
   ]},
-  { week: 3, empty: true, emptyReason: 'No lectures this week due to war.' },
+  { week: 3, empty: true, emptyReason: 'No lectures this week due to war.', emoji: '🕊' },
   { week: 4, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Lec 3 — NumPy' },
     { course: '566',  label: 'CENG566',  name: "Lec 3 — Rosenblatt's Perceptron" },
@@ -611,7 +611,7 @@ const weeks = [
     { course: '675',  label: 'CENG675',  name: 'Lec 5 — Overview of Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 5 — Statistical Multipath Channel Models (Wideband)' },
   ]},
-  { week: 8, empty: true, emptyReason: 'No lectures this week due to online assessments.' },
+  { week: 8, empty: true, emptyReason: 'No lectures this week due to online assessments.', emoji: '📝' },
   { week: 9, lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 2' },
     { course: '557',  label: 'CENG557',  name: 'Lec 5.1 — QOS' },
@@ -648,6 +648,8 @@ const weeks = [
     { course: '557',  label: 'CENG557',  name: 'Lec 7.2 — MPLS' },
     { course: '587',  label: 'EENG587',  name: 'Lec 9 — Multicarrier Modulation' },
   ]},
+  { week: 15, empty: true, emptyReason: 'Final Exam Preparation', emoji: '📚' },
+  { week: 16, empty: true, emptyReason: 'Final Exam Preparation', emoji: '📚' },
 ];
 
 const STORAGE_KEY = 'mscce_tracker_v2';
@@ -746,7 +748,7 @@ function render() {
         </div>
         <div class="lectures">
           <div class="empty-notice">
-            <span class="empty-notice-icon">🕊</span>
+            <span class="empty-notice-icon">${w.emoji || '🕊'}</span>
             <span>${w.emptyReason}</span>
           </div>
         </div>
