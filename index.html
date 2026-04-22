@@ -479,6 +479,68 @@
 
   .lecture-name { font-size: 12px; letter-spacing: 0.5px; color: var(--text); line-height: 1.4; flex: 1; }
 
+  .week-mode {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--green);
+    font-weight: 700;
+    margin-top: 8px;
+    padding: 4px 8px;
+    border: 1px solid rgba(0,255,157,0.4);
+    border-radius: 3px;
+    display: inline-block;
+    background: rgba(0,255,157,0.08);
+  }
+
+  .week-assessment {
+    padding: 12px 20px;
+    border-top: 1px solid rgba(255,230,0,0.2);
+    border-bottom: 1px solid rgba(255,230,0,0.2);
+    background: rgba(255,230,0,0.04);
+  }
+
+  .assessment-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .assessment-materials {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .material-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .material-course {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    border: 1px solid;
+    min-width: 72px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .material-text {
+    color: var(--text);
+    opacity: 0.85;
+  }
+
   .badge-566l { color: var(--c566l); border-color: rgba(0,245,255,0.35);  background: rgba(0,245,255,0.06); }
   .badge-566  { color: var(--c566);  border-color: rgba(191,95,255,0.35); background: rgba(191,95,255,0.06); }
   .badge-557  { color: var(--c557);  border-color: rgba(255,45,120,0.35); background: rgba(255,45,120,0.06); }
@@ -589,35 +651,39 @@ const weeks = [
     { course: '557',  label: 'CENG557',  name: 'Lec 5.2 — QOS' },
     { course: '587',  label: 'EENG587',  name: 'Lec 6.2 — Capacity of Wireless Channels' },
   ]},
-  { week: 11, lectures: [
+  { week: 11, mode: 'ON CAMPUS', lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 3' },
     { course: '566',  label: 'CENG566',  name: 'Lec 6 — Kernel Methods + RBF' },
     { course: '557',  label: 'CENG557',  name: 'Lec 6.1 — ATM' },
     { course: '675',  label: 'CENG675',  name: 'Lec 7 — Video Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 7.1 — Diversity' },
   ]},
-  { week: 12, lectures: [
+  { week: 12, mode: 'ON CAMPUS', assessment: 'Assessment 2', requiredMaterials: [
+    { course: '566l', label: 'CENG566L', material: 'Exp 1 2' },
+    { course: '566', label: 'CENG566', material: 'Lect 4 5' },
+    { course: '557', label: 'CENG557', material: 'Lect 4 5' },
+    { course: '675', label: 'CENG675', material: 'Lect 5 6' },
+    { course: '587', label: 'EENG587', material: 'Lect 4 5 6' },
+  ], lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 4' },
     { course: '566',  label: 'CENG566',  name: 'Lec 7 — SVM' },
     { course: '557',  label: 'CENG557',  name: 'Lec 6.2 — ATM' },
     { course: '675',  label: 'CENG675',  name: 'Lec 8.1 — Audio Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 7.2 — Diversity' },
   ]},
-  { week: 13, lectures: [
+  { week: 13, mode: 'ON CAMPUS', lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 5' },
     { course: '566',  label: 'CENG566',  name: 'Lec 8 — PCA' },
     { course: '557',  label: 'CENG557',  name: 'Lec 7.1 — MPLS' },
     { course: '675',  label: 'CENG675',  name: 'Lec 8.2 — Audio Compression' },
     { course: '587',  label: 'EENG587',  name: 'Lec 8 — Multiple Antennas & Space Time Communications' },
   ]},
-  { week: 14, lectures: [
+  { week: 14, mode: 'ON CAMPUS', lectures: [
     { course: '566l', label: 'CENG566L', name: 'Experiment 6' },
     { course: '557',  label: 'CENG557',  name: 'Lec 7.2 — MPLS' },
     { course: '675',  label: 'CENG675',  name: 'Lec 9 — Multimedia Topics' },
     { course: '587',  label: 'EENG587',  name: 'Lec 9 — Multicarrier Modulation' },
   ]},
-  { week: 15, empty: true, emptyReason: 'Final Exam Preparation', emoji: '📚' },
-  { week: 16, empty: true, emptyReason: 'Final Exam Preparation', emoji: '📚' },
 ];
 
 const STORAGE_KEY = 'mscce_tracker_v2';
@@ -736,6 +802,7 @@ function render() {
         <div class="week-title-wrap">
           <div class="week-title">WEEK ${String(w.week).padStart(2,'0')}</div>
           <div class="week-dates">${getWeekDates(w.week)}</div>
+          ${w.mode ? `<div class="week-mode">${w.mode}</div>` : ''}
           ${w.week === currentWeek ? '<div class="week-current-marker">◆ YOU ARE HERE ◆</div>' : ''}
         </div>
         <div class="week-mini-bar">
@@ -745,6 +812,21 @@ function render() {
           <div class="mini-count">${wDone}/${wTotal}</div>
         </div>
       </div>
+      ${w.assessment ? `
+        <div class="week-assessment">
+          <div class="assessment-title">${w.assessment}</div>
+          ${w.requiredMaterials ? `
+            <div class="assessment-materials">
+              ${w.requiredMaterials.map(m => `
+                <div class="material-row">
+                  <span class="material-course badge-${m.course}">${m.label}</span>
+                  <span class="material-text">${m.material}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
       <div class="lectures">
         ${w.lectures.map((lec, i) => {
           const id = itemId(w.week, i);
